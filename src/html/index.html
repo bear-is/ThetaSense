@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Power Grid Viewer</title>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+  margin: 0;
+}
+
+#graph {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Nodes */
+.node circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+  cursor: pointer;
+}
+
+/* Edges */
+.link {
+  fill: none;
+  stroke-width: 3px;
+  cursor: pointer;
+}
+
+/* Tooltip */
+#tooltip {
+  position: absolute;
+  background: #222;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 6px;
+  display: none;
+  pointer-events: none;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<svg id="graph"></svg>
+<div id="tooltip"></div>
+
+<script>
+
+// ================= CONFIG =================
+
+const WIDTH = window.innerWidth;
+const HEIGHT = window.innerHeight;
+
+const API_URL = "http://localhost:5000/grid"; // change if needed
+
+// ================= SVG =================
+
+const svg = d3.select("#graph")
+  .attr("width", WIDTH)
+  .attr("height", HEIGHT);
+
+const tooltip = d3.select("#tooltip");
+
+// Arrow marker
+svg.append("defs")
+  .append("marker")
+  .attr("id", "arrow")
+  .attr("viewBox", "0 -5 10 10")
+  .attr("refX", 22)
+  .attr("refY", 0)
+  .attr("markerWidth", 6)
+  .attr("markerHeight", 6)
+  .attr("orient", "auto")
+  .append("path")
+  .attr("d", "M0,-5L10,0L0,5")
+  .attr("fill", "#aaa");
+
+// ================= COLOR SCALE =================
+
+// Flow → Color
+const flowColor = d3.scaleSequential()
+  .domain([0, 100]) // adjust to your max flow
+  .interpolator(d3.interpolateTurbo);
+
+// ================= LOAD DATA =================
+
+async function loadData() {
+
+  // TEMP SAMPLE DATA (remove when backend ready)
+  const data = {
+    nodes: [
+      { id: "A", generated: 50, demand: 20, loss: 2 },
+      { id: "B", generated: 0, demand: 30, loss: 1 },
+      { id: "C", generated: 10, demand: 10, loss: 0.5 },
+      { id: "D", generated: 0, demand: 25, loss: 1.2 }
+    ],
+
+    edges: [
+      { source: "A", target: "B", flow: 40, loss: 3 },
+      { source: "A", target: "C", flow: 15, loss: 1 },
+      { source: "C", target: "D", flow: 10, loss: 0.7 },
+      { source: "B", target: "D", flow: 20, loss: 2 }
+    ]
+  };
+
+  // When backend works:
+  // const res = await fetch(API_URL);
+  // const data = await res.json();
+
+  render(data);
+}
+
+// ================= RENDER =================
+
+function render(data) {
+
+  const simulation = d3.forceSimulation(data.nodes)
+    .force("link", d3.forceLink(data.edges).id(d => d.id).distance(120))
+    .force("charge", d3.forceManyBody().strength(-350))
+    .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
+    .force("collision", d3.forceCollide().radius(40));
+
+  // ===== LINKS =====
+
+  const link = svg.append("g")
+    .selectAll(".link")
+    .data(data.edges)
+    .enter()
+    .append("path")
+    .attr("class", "link")
+    .attr("marker-end", "url(#arrow)")
+    .attr("stroke", d => flowColor(d.flow))
+    .on("click", showEdgeTooltip);
+
+  // ===== NODES =====
+
+  const node = svg.append("g")
+    .selectAll(".node")
+    .data(data.nodes)
+    .enter()
+    .append("g")
+    .attr("class", "node")
+    .call(drag(simulation))
+    .on("click", showNodeTooltip);
+
+  node.append("circle")
+    .attr("r", 18)
+    .attr("fill", "#3498db");
+
+  node.append("text")
+    .text(d => d.id)
+    .attr("x", 0)
+    .attr("y", 5)
+    .attr("text-anchor", "middle")
+    .attr("fill", "#fff")
+    .attr("font-size", "12px");
+
+  // ===== UPDATE LOOP =====
+
+  simulation.on("tick", () => {
+
+    link.attr("d", d => {
+      return `
+        M ${d.source.x},${d.source.y}
+        L ${d.target.x},${d.target.y}
+      `;
+    });
+
+    node.attr("transform", d =>
+      `translate(${d.x},${d.y})`
+    );
+
+  });
+}
+
+// ================= DRAG =================
+
+function drag(sim) {
+
+  function start(event, d) {
+    if (!event.active) sim.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function drag(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  function end(event, d) {
+    if (!event.active) sim.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
+  return d3.drag()
+    .on("start", start)
+    .on("drag", drag)
+    .on("end", end);
+}
+
+// ================= TOOLTIP =================
+
+function showNodeTooltip(event, d) {
+
+  tooltip
+    .style("display", "block")
+    .html(`
+      <b>Node ${d.id}</b><br><br>
+      Generated: ${d.generated} MW<br>
+      Demand: ${d.demand} MW<br>
+      Loss: ${d.loss} MW
+    `)
+    .style("left", event.pageX + 10 + "px")
+    .style("top", event.pageY + 10 + "px");
+}
+
+function showEdgeTooltip(event, d) {
+
+  tooltip
+    .style("display", "block")
+    .html(`
+      <b>${d.source.id} → ${d.target.id}</b><br><br>
+      Flow: ${d.flow} MW<br>
+      Loss: ${d.loss} MW
+    `)
+    .style("left", event.pageX + 10 + "px")
+    .style("top", event.pageY + 10 + "px");
+}
+
+// Hide tooltip on background click
+svg.on("click", () => {
+  tooltip.style("display", "none");
+});
+
+// ================= AUTO UPDATE =================
+
+// Reload every 5s (for live backend)
+setInterval(loadData, 5000);
+
+loadData();
+
+</script>
+</body>
+</html>
