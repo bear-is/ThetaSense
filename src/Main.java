@@ -1,3 +1,5 @@
+import java.util.concurrent.*;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -20,9 +22,14 @@ public class Main {
         grid.addEdge(new TransmissionLine(4,0,0.5,10));
 
         SimulationEngine engine = new SimulationEngine(grid);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-        for (int i = 0; i < 10; i++) {
-            engine.step();
-        }
+
+            // Schedule a task to run every 1 second
+            scheduler.scheduleAtFixedRate(() -> {
+                engine.step();// update simulation
+            }, 0, 2, TimeUnit.SECONDS);
+
+
     }
 }
