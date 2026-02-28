@@ -24,7 +24,7 @@ public class TransmissionLine {
     }
     public double getReactance()
     {
-        return reactance;
+        return reactance;   
     }
 
     // Getters

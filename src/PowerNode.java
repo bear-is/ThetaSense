@@ -9,9 +9,15 @@ public class PowerNode {
     private double voltageAngle; // theta
 
     private boolean slack;       // reference node
+    private String name;
 
     public PowerNode(int id) {
         this.id = id;
+    }
+    public PowerNode(int id, String name)
+    {
+      this(id);
+      this.name = name;
     }
 
     public void updateNetInjection() {
@@ -34,4 +40,12 @@ public class PowerNode {
 
     public boolean isSlack() { return slack; }
     public void setSlack(boolean slack) { this.slack = slack; }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
