@@ -22,6 +22,10 @@ public class TransmissionLine {
     public double getUtilization() {
         return Math.abs(flow) / capacity;
     }
+    public double getReactance()
+    {
+        return reactance;
+    }
 
     // Getters
     public int getFrom() { return from; }
