@@ -8,16 +8,16 @@ public class PowerGrid {
     public void addNode(PowerNode node) {
         nodes.add(node);
     }
-    public List<PowerNode> getNodes()
-    {
+
+    public List<PowerNode> getNodes() {
         return nodes;
     }
 
     public void addEdge(TransmissionLine edge) {
         edges.add(edge);
     }
-    public List<TransmissionLine> getEdges()
-    {
+
+    public List<TransmissionLine> getEdges() {
         return edges;
     }
 

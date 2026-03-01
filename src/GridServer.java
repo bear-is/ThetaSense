@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
+
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -24,24 +25,36 @@ public class GridServer {
 
         // 1. DATA ROUTE: Fetch the whole grid
         server.createContext("/api/grid", (exchange) -> {
-            addCorsHeaders(exchange);
-            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
-                exchange.sendResponseHeaders(204, -1);
+            try {
+                addCorsHeaders(exchange);
+                if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    exchange.sendResponseHeaders(204, -1);
+                    exchange.close();
+                    return;
+                }
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("nodes", grid.getNodes());
+                data.put("edges", grid.getEdges());
+
+                byte[] response = mapper.writeValueAsBytes(data);
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response);
+                }
                 exchange.close();
-                return;
-            }
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("nodes", grid.getNodes());
-            data.put("edges", grid.getEdges());
+            } catch (Exception e) {
+                e.printStackTrace();   // <-- THIS WILL SHOW REAL ERROR
 
-            byte[] response = mapper.writeValueAsBytes(data);
-            exchange.getResponseHeaders().add("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, response.length);
-            try (OutputStream os = exchange.getResponseBody()) {
-                os.write(response);
+                try {
+                    exchange.sendResponseHeaders(500, -1);
+                } catch (Exception ignored) {
+                }
+            } finally {
+                exchange.close();
             }
-            exchange.close();
         });
 
         // 2. ACTION ROUTE: Add a single node
@@ -130,5 +143,5 @@ public class GridServer {
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
     }
-    
+
 }

@@ -34,12 +34,13 @@ export default function App() {
 // --- Submit handler ---
     const handleAddLine = async (e) => {
         e.preventDefault();
-        if (!lineForm.from || !lineForm.to || !lineForm.weight) return;
+        if (!lineForm.from || !lineForm.to || !lineForm.distance || !lineForm.capacity) return;
 
         const payload = {
             from: lineForm.from,
             to: lineForm.to,
-            weight: Number(lineForm.weight)
+            distance: Number(lineForm.distance),
+            capacity: Number(lineForm.capacity)
         };
 
         try {
@@ -51,7 +52,7 @@ export default function App() {
             if (!res.ok) throw new Error("Add line failed");
 
             fetchGraphData(); // refresh graph
-            setLineForm({from: "", to: "", weight: ""});
+            setLineForm({from: "", to: "", distance: "", capacity: ""});
         } catch (err) {
             console.error(err);
         }
