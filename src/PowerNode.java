@@ -15,12 +15,6 @@ public class PowerNode {
     private boolean slack;       // reference node
     private String name;
     private static int nextId =  0;
-
-    public PowerNode ()
-    {
-        this.id = nextId;
-        nextId++;
-    }
     public PowerNode(int id) {
         this.id = id;
     }

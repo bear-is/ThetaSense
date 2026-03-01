@@ -16,7 +16,7 @@ public class PowerGrid {
     public void addEdge(TransmissionLine edge) {
         edges.add(edge);
     }
-    public List<TransmissionLine> getEdge()
+    public List<TransmissionLine> getEdges()
     {
         return edges;
     }
