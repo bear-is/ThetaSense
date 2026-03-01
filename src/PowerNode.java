@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PowerNode {
 
 
@@ -11,7 +14,7 @@ public class PowerNode {
 
     private boolean slack;       // reference node
     private String name;
-    private static int nextId =  0;
+    private static int nextId =  1;
     public PowerNode(int id) {
         this.id = id;
     }
