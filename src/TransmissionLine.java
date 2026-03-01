@@ -1,3 +1,8 @@
+import java.util.concurrent.TransferQueue;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 public class TransmissionLine {
 
     private int from;
@@ -8,6 +13,10 @@ public class TransmissionLine {
     private  double capacity;
 
     private double flow;
+    public TransmissionLine()
+    {
+
+    }
 
     public TransmissionLine(int from, int to, double distance, double capacity) {
         this.from = from;
@@ -17,7 +26,7 @@ public class TransmissionLine {
     }
 
     public void computeFlow(PowerNode n1, PowerNode n2) {
-        this.flow = (n1.getVoltageAngle() - n2.getVoltageAngle()) / reactance;
+        this.flow = (n1.getVoltageAngle() - n2.getVoltageAngle()) / reactance;//only worry about this if we are considering phase difference which for us is not currently needed
     }
 
     public double getUtilization() {

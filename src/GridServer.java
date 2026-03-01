@@ -72,6 +72,32 @@ public class GridServer {
             }
             exchange.close();
         });
+        server.createContext("/api/line/add", (exchange) -> {
+            addCorsHeaders(exchange);
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+                return;
+            }
+
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                try {
+                    TransmissionLine newLine = mapper.readValue(exchange.getRequestBody(), TransmissionLine.class);
+                    grid.addEdge(newLine);
+                    System.out.println("⚡ Received Line: " + newLine.getFrom() + " to " + newLine.getTo());
+
+                    String response = "{\"status\":\"success\"}";
+                    exchange.sendResponseHeaders(200, response.length());
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(response.getBytes());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    exchange.sendResponseHeaders(500, -1);
+                }
+            }
+            exchange.close();
+        });
         server.createContext("/api/node/update", (exchange) -> {
             addCorsHeaders(exchange);
             if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
