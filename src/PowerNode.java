@@ -1,6 +1,10 @@
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PowerNode {
 
-    private final int id;
+
+    private Long id;
 
     private double demand;       // positive means load
     private double generation;   // positive means produced power
@@ -10,11 +14,17 @@ public class PowerNode {
 
     private boolean slack;       // reference node
     private String name;
+    private static Long nextId =  0L;
 
-    public PowerNode(int id) {
+    public PowerNode ()
+    {
+        this.id = nextId;
+        nextId++;
+    }
+    public PowerNode(Long id) {
         this.id = id;
     }
-    public PowerNode(int id, String name)
+    public PowerNode(Long id, String name)
     {
       this(id);
       this.name = name;
@@ -25,7 +35,7 @@ public class PowerNode {
     }
 
     // Getters & Setters
-    public int getId() { return id; }
+    public Long getId() { return id; }
 
     public double getDemand() { return demand; }
     public void setDemand(double demand) { this.demand = demand; }

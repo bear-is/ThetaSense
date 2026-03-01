@@ -111,4 +111,13 @@ public class PowerGrid {
 
         return x;
     }
+
+    public void updateNode(PowerNode updatedNode) {
+        for (int i = 0; i < nodes.size(); i++) {
+            if (nodes.get(i).getId().equals(updatedNode.getId())) {
+                nodes.set(i, updatedNode);
+                return;
+            }
+        }
+    }
 }
