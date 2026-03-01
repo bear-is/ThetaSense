@@ -1,7 +1,4 @@
 import java.util.concurrent.TransferQueue;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class TransmissionLine {
 
