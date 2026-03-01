@@ -194,6 +194,7 @@ export default function App() {
                     <Metric label="Active Nodes" value={graphData.nodes.length}/>
                     <Metric label="Total Grid Load" value={`${graphData.nodes.length * 12} MW`}/>
                     <Metric label="Stability Index" value="0.98 pu"/>
+                    <Metric label="Efficiency Quotient" value={`${graphData.nodes.length}%`}/>
                     <div style={statusCardStyle}>
                         <strong>Controller Status</strong>
                         <p style={{fontSize: '11px', color: '#9ca3af'}}>
