@@ -20,7 +20,7 @@ public class SimulationEngine {
 
         double maxLoading = 0.0;
 
-        for (TransmissionLine e : grid.getEdge()) {
+        for (TransmissionLine e : grid.getEdges()) {
 
             double loading = Math.abs(e.getFlow()) / e.getCapacity();
 

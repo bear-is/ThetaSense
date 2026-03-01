@@ -32,7 +32,7 @@ export default function Network({ graphData, updates }) {
     // 2. SIMULATION SETUP
     const simulation = d3.forceSimulation(graphData.nodes)
       .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(150))
-      .force("charge", d3.forceManyBody().strength(-400))
+      .force("charge", d3.forceManyBody().strength(-20))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .on("tick", ticked);
 

@@ -33,7 +33,7 @@ public class GridServer {
 
             Map<String, Object> data = new HashMap<>();
             data.put("nodes", grid.getNodes());
-            data.put("edges", new ArrayList<>());
+            data.put("edges", grid.getEdges());
 
             byte[] response = mapper.writeValueAsBytes(data);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
