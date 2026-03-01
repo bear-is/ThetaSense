@@ -4,12 +4,23 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GridServer {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         ObjectMapper mapper = new ObjectMapper();
         PowerGrid grid = new PowerGrid();
+        SimulationEngine engine = new SimulationEngine(grid);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+
+        // Schedule a task to run every 1 second
+        scheduler.scheduleAtFixedRate(() -> {
+            engine.step();// update simulation
+        }, 0, 2, TimeUnit.SECONDS);
 
         // 1. DATA ROUTE: Fetch the whole grid
         server.createContext("/api/grid", (exchange) -> {
