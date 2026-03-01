@@ -2,7 +2,7 @@
 
 **ThetaSense** is a web app for constructing and simulating power networks in real time.
 
-The backend is written in **Java** and sends network data to the frontend using **webhooks** and **POST requests** in `GridServer.java`.  
+The backend is written in **Java** and sends network data to the frontend using **webhooks** and **CRUD requests** in `GridServer.java`.  
 The frontend is built with **Node.js**, **React**, and **D3.js**, allowing you to visually connect nodes to simulate power demands.
 
 ---
