@@ -37,8 +37,8 @@ export default function App() {
         if (!lineForm.from || !lineForm.to || !lineForm.distance || !lineForm.capacity) return;
 
         const payload = {
-            from: lineForm.from,
-            to: lineForm.to,
+            from: Number(lineForm.from),
+            to: Number(lineForm.to),
             distance: Number(lineForm.distance),
             capacity: Number(lineForm.capacity)
         };
@@ -175,7 +175,7 @@ export default function App() {
                         <select name="from" value={lineForm.from} onChange={handleLineChange} required>
                             <option value="">From Node</option>
                             {graphData.nodes.map(n => (
-                                <option key={n.id || n.name} value={n.id || n.name}>{n.id || n.name}</option>
+                                <option key={n.id} value={n.id}>{n.id}</option>
                             ))}
                         </select>
 
@@ -186,8 +186,8 @@ export default function App() {
                             ))}
                         </select>
 
-                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.Distance} onChange={handleLineChange} required/>
-                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.Capacity} onChange={handleLineChange} required/>
+                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.distance} onChange={handleLineChange} required/>
+                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.capacity} onChange={handleLineChange} required/>
                         <button type="submit">Add Line</button>
                     </form>
                 </div>

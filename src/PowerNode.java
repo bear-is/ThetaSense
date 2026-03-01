@@ -14,14 +14,19 @@ public class PowerNode {
 
     private boolean slack;       // reference node
     private String name;
-    private static int nextId =  1;
+    private static int nextId = 1;
+
+    public PowerNode() {
+        this.id = ++nextId;
+    }
+
     public PowerNode(int id) {
         this.id = id;
     }
-    public PowerNode(int id, String name)
-    {
-      this(id);
-      this.name = name;
+
+    public PowerNode(int id, String name) {
+        this(id);
+        this.name = name;
     }
 
     public void updateNetInjection() {
@@ -29,21 +34,45 @@ public class PowerNode {
     }
 
     // Getters & Setters
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
-    public double getDemand() { return demand; }
-    public void setDemand(double demand) { this.demand = demand; }
+    public double getDemand() {
+        return demand;
+    }
 
-    public double getGeneration() { return generation; }
-    public void setGeneration(double generation) { this.generation = generation; }
+    public void setDemand(double demand) {
+        this.demand = demand;
+    }
 
-    public double getNetInjection() { return netInjection; }
+    public double getGeneration() {
+        return generation;
+    }
 
-    public double getVoltageAngle() { return voltageAngle; }
-    public void setVoltageAngle(double voltageAngle) { this.voltageAngle = voltageAngle; }
+    public void setGeneration(double generation) {
+        this.generation = generation;
+    }
 
-    public boolean isSlack() { return slack; }
-    public void setSlack(boolean slack) { this.slack = slack; }
+    public double getNetInjection() {
+        return netInjection;
+    }
+
+    public double getVoltageAngle() {
+        return voltageAngle;
+    }
+
+    public void setVoltageAngle(double voltageAngle) {
+        this.voltageAngle = voltageAngle;
+    }
+
+    public boolean isSlack() {
+        return slack;
+    }
+
+    public void setSlack(boolean slack) {
+        this.slack = slack;
+    }
 
     public String getName() {
         return name;
