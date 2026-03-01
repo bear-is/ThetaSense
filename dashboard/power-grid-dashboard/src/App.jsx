@@ -21,7 +21,8 @@ export default function App() {
     const [lineForm, setLineForm] = useState({
         from: "",
         to: "",
-        weight: ""
+        distance: "",
+        capacity: ""
     });
 
     // --- Input handler ---
