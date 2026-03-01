@@ -11,7 +11,7 @@ public class SimulationEngine {
 
     public void randomizeDemand() {
         for (PowerNode node : grid.getNodes()) {
-            double demand = random.nextDouble() * 10;
+            double demand = node.getDemand() + random.nextDouble() % 10;
             node.setDemand(demand);
             node.updateNetInjection();
         }
