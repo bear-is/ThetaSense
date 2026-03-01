@@ -1,17 +1,18 @@
 public class TransmissionLine {
 
-    private final int from;
-    private final int to;
+    private int from;
+    private int to;
+    private static final double reactivity = 0.3;//this is our impedence per kilometer metric
 
-    private final double reactance;
-    private final double capacity;
+    private  double reactance;//this will be our impedence
+    private  double capacity;
 
     private double flow;
 
-    public TransmissionLine(int from, int to, double reactance, double capacity) {
+    public TransmissionLine(int from, int to, double distance, double capacity) {
         this.from = from;
         this.to = to;
-        this.reactance = reactance;
+        this.reactance = distance * reactivity;
         this.capacity = capacity;
     }
 
