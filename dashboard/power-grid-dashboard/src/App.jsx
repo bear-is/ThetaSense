@@ -21,7 +21,8 @@ export default function App() {
     const [lineForm, setLineForm] = useState({
         from: "",
         to: "",
-        weight: ""
+        distance: "",
+        capacity: ""
     });
 
     // --- Input handler ---
@@ -184,7 +185,8 @@ export default function App() {
                             ))}
                         </select>
 
-                        <input name="weight" type="number" placeholder="Weight" value={lineForm.weight} onChange={handleLineChange} required/>
+                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.Distance} onChange={handleLineChange} required/>
+                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.Capacity} onChange={handleLineChange} required/>
                         <button type="submit">Add Line</button>
                     </form>
                 </div>
