@@ -79,15 +79,10 @@ export default function App() {
             console.error("❌ Failed to load grid:", err);
         }
     };
-
-    // --- DEBUG: log form changes ---
-    useEffect(() => {
-        console.log("NodeForm updated:", nodeForm);
-    }, [nodeForm]);
 // In your React useEffect
 useEffect(() => {
   const interval = setInterval(async () => {
-    const data = await get("/simulation/results");
+    const data = await get("http://localhost:8080/api/simulation/results");
     if (data) {
       setUpdates(data); // This updates the node colors automatically!
     }
@@ -95,6 +90,12 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [get]);
+
+    // --- DEBUG: log form changes ---
+    useEffect(() => {
+        console.log("NodeForm updated:", nodeForm);
+    }, [nodeForm]);
+
 
     // --- Handle form input changes ---
     const handleNodeChange = (e) => {
