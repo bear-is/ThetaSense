@@ -3,64 +3,126 @@ import Network from "./Network";
 import {useState, useEffect} from "react";
 
 export default function App() {
+    // --- Graph structure from server (nodes & links) ---
     const [graphData, setGraphData] = useState({nodes: [], links: []});
+
+    // --- Real-time updates: node/link colors, status, etc ---
     const [updates, setUpdates] = useState(null);
+
+    // --- Form state for adding new nodes ---
     const [nodeForm, setNodeForm] = useState({
         name: "",
         demand: "",
         generation: "",
-        netInjection: "",
         slack: false
     });
 
+    // --- Form state ---
+    const [lineForm, setLineForm] = useState({
+        from: "",
+        to: "",
+        weight: ""
+    });
+
+    // --- Input handler ---
+    const handleLineChange = (e) => {
+        const {name, value} = e.target;
+        setLineForm(prev => ({...prev, [name]: value}));
+    };
+
+// --- Submit handler ---
+    const handleAddLine = async (e) => {
+        e.preventDefault();
+        if (!lineForm.from || !lineForm.to || !lineForm.weight) return;
+
+        const payload = {
+            from: lineForm.from,
+            to: lineForm.to,
+            weight: Number(lineForm.weight)
+        };
+
+        try {
+            const res = await fetch("http://localhost:8080/api/line/add", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error("Add line failed");
+
+            fetchGraphData(); // refresh graph
+            setLineForm({from: "", to: "", weight: ""});
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // --- FETCH GRAPH: full graph from server (nodes + links) ---
+    const fetchGraphData = async () => {
+        try {
+            const res = await fetch("http://localhost:8080/api/grid");
+            if (!res.ok) throw new Error("Fetch failed");
+
+            const data = await res.json();
+
+            // Only set graph structure once (nodes + links)
+            setGraphData({
+                nodes: data.nodes || [],
+                links: data.links || data.edges || []
+            });
+        } catch (err) {
+            console.error("❌ Failed to load grid:", err);
+        }
+    };
+
+    // --- DEBUG: log form changes ---
+    useEffect(() => {
+        console.log("NodeForm updated:", nodeForm);
+    }, [nodeForm]);
+
+    // --- Handle form input changes ---
     const handleNodeChange = (e) => {
         const {name, value, type, checked} = e.target;
-
         setNodeForm(prev => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value
         }));
     };
 
-    // 1. INITIAL FETCH: Load the grid from Java on startup
+    // --- INITIAL GRAPH LOAD ---
     useEffect(() => {
-        fetch("http://localhost:8080/api/grid")
-            .then(res => res.json())
-            .then(data => {
-                // Ensure data format matches D3 expectations
-                setGraphData({
-                    nodes: data.nodes || [],
-                    links: data.links || data.edges || [] // Handles 'links' or 'edges' naming
-                });
-            })
-            .catch(err => console.error("❌ Backend Offline:", err));
+        fetchGraphData(); // fetch graph structure only once
     }, []);
 
-    // 2. DYNAMIC UPDATES: Simulated real-time sensor data
+    // After graphData is fetched or updated, compute node colors once
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setUpdates({
-                nodes: {"N1": "#f59e0b", "N2": "#10b981"}, // Orange and Green status
-                links: {"N1-N2": "#ef4444"} // Red for high-load line
-            });
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [graphData]);
+        if (!graphData.nodes.length) return; // skip if no nodes
 
-    // 3. ADD NODE & SYNC: Save to Java and Update UI
+        const nodeColors = {};
+        graphData.nodes.forEach(node => {
+            nodeColors[node.id || node.name] = (node.netInjection > 0) ? "#b68900" : "#000000";
+        });
+
+        setUpdates({
+            nodes: nodeColors,
+            links: {} // no link coloring
+        });
+    }, [graphData]); // runs only when graphData changes (initial load or refresh)
+
+    // --- ADD NODE (POST request) ---
+    // NOTE: nodes are not added incrementally in state; server will handle them
     const handleAddNode = async (e) => {
         e.preventDefault();
 
+        // Currently, name doesn't actually do anything because it doesn't get pushed to the server or read from it.
         const payload = {
             name: nodeForm.name,
             demand: Number(nodeForm.demand),
             generation: Number(nodeForm.generation),
-            netInjection: Number(nodeForm.netInjection),
+            netInjection: Number(nodeForm.generation - nodeForm.demand),
             slack: nodeForm.slack
         };
 
         try {
-            // POST new node
             const res = await fetch("http://localhost:8080/api/node/add", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -69,18 +131,15 @@ export default function App() {
 
             if (!res.ok) throw new Error("Add failed");
 
-            // Re-fetch graph
-            await fetchGraphData();
+            // Optionally refetch graph after adding node
+            fetchGraphData(); // comment this out if we don't want to redraw the graph after adding a node.
 
-            // Reset form
             setNodeForm({
                 name: "",
                 demand: "",
                 generation: "",
-                netInjection: "",
                 slack: false
             });
-
         } catch (err) {
             console.error(err);
         }
@@ -92,71 +151,49 @@ export default function App() {
                 <h1 style={{margin: 0, fontSize: '1.2rem'}}>⚡ SmartGrid Optimization Engine</h1>
                 <div style={{fontSize: '12px', color: '#10b981'}}>● SYSTEM ONLINE</div>
             </header>
-            <form onSubmit={handleAddNode} className="node-form">
-
-                <input
-                    name="name"
-                    placeholder="Name"
-                    value={nodeForm.name}
-                    onChange={handleNodeChange}
-                    required
-                />
-
-                <input
-                    name="demand"
-                    type="number"
-                    placeholder="Demand"
-                    value={nodeForm.demand}
-                    onChange={handleNodeChange}
-                />
-
-                <input
-                    name="generation"
-                    type="number"
-                    placeholder="Generation"
-                    value={nodeForm.generation}
-                    onChange={handleNodeChange}
-                />
-
-                <input
-                    name="netInjection"
-                    type="number"
-                    placeholder="Net Injection"
-                    value={nodeForm.netInjection}
-                    onChange={handleNodeChange}
-                />
-
-                <label>
-                    Slack
-                    <input
-                        name="slack"
-                        type="checkbox"
-                        checked={nodeForm.slack}
-                        onChange={handleNodeChange}
-                    />
-                </label>
-
-                <button type="submit">Add</button>
-
-            </form>
-
             <main style={{display: "flex", flex: 1, overflow: "hidden"}}>
-                <div style={{flex: 1, padding: "20px", position: "relative"}}>
-                    <div style={toolbarStyle}>
-                        {/*need to add fields for data for the new node*/}
-
-                        <button onClick={handleAddNode} style={btnStyle}>+ Add Node</button>
-                    </div>
-                    {/* THE HOOK: Passing data and updates into D3 Network */}
+                <div style={{flex: 1, position: "relative"}}>
+                    {/* Pass static graph + real-time status updates */}
                     <Network graphData={graphData} updates={updates}/>
                 </div>
+                <div style={formTopbarStyle}>
+                    {/* Node form */}
+                    <form onSubmit={handleAddNode} style={formStyle}>
+                        <input name="demand" type="number" placeholder="Demand" value={nodeForm.demand} onChange={handleNodeChange}/>
+                        <input name="generation" type="number" placeholder="Generation" value={nodeForm.generation} onChange={handleNodeChange}/>
+                        <label>
+                            Slack
+                            <input name="slack" type="checkbox" checked={nodeForm.slack} onChange={handleNodeChange}/>
+                        </label>
+                        <button type="submit">Add Node</button>
+                    </form>
 
+                    {/* Line form */}
+                    <form onSubmit={handleAddLine} style={formStyle}>
+                        <select name="from" value={lineForm.from} onChange={handleLineChange} required>
+                            <option value="">From Node</option>
+                            {graphData.nodes.map(n => (
+                                <option key={n.id || n.name} value={n.id || n.name}>{n.id || n.name}</option>
+                            ))}
+                        </select>
+
+                        <select name="to" value={lineForm.to} onChange={handleLineChange} required>
+                            <option value="">To Node</option>
+                            {graphData.nodes.map(n => (
+                                <option key={n.id || n.name} value={n.id || n.name}>{n.id || n.name}</option>
+                            ))}
+                        </select>
+
+                        <input name="weight" type="number" placeholder="Weight" value={lineForm.weight} onChange={handleLineChange} required/>
+                        <button type="submit">Add Line</button>
+                    </form>
+                </div>
                 <div style={sidebarStyle}>
+
                     <h3 style={{marginTop: 0, color: '#3b82f6'}}>System Metrics</h3>
                     <Metric label="Active Nodes" value={graphData.nodes.length}/>
                     <Metric label="Total Grid Load" value={`${graphData.nodes.length * 12} MW`}/>
                     <Metric label="Stability Index" value="0.98 pu"/>
-
                     <div style={statusCardStyle}>
                         <strong>Controller Status</strong>
                         <p style={{fontSize: '11px', color: '#9ca3af'}}>
@@ -190,19 +227,38 @@ const headerStyle = {
     alignItems: 'center',
     background: '#0f172a'
 };
-const toolbarStyle = {position: 'absolute', top: 30, left: 30, zIndex: 10};
-const btnStyle = {
-    padding: '10px 16px',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#3b82f6',
-    color: '#fff',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+const formTopbarStyle = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "80px",            // adjust as needed
+    background: "#0f172a",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-around",
+    padding: "10px 20px",
+    gap: "20px",
+    borderBottom: "1px solid #1f2937",
+    zIndex: 1000,
 };
-const sidebarStyle = {width: "280px", padding: "20px", background: "#0f172a", borderLeft: '1px solid #1f2937'};
-const footerStyle = {
+const formStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+};
+const sidebarStyle = {
+    width: "280px",
+    padding: "20px",
+    background: "#0f172a",
+    borderLeft: "1px solid #1f2937",
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0,        // <-- prevent shrinking
+    height: "100%",       // <-- fill parent's height
+    overflowY: "auto",    // <-- allow scrolling if needed
+    gap: "15px"           // <-- spacing between forms/metrics
+};const footerStyle = {
     padding: '8px 20px',
     fontSize: '11px',
     color: '#64748b',

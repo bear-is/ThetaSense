@@ -1,50 +1,61 @@
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #0b1220;
-  color: #e5e7eb;
+    margin: 0;
+    width: 100vw;
+    font-family: Arial, sans-serif;
+    background-color: #0b1220;
+    color: #e5e7eb;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden; /* optional: prevent horizontal scroll */
 }
 
 header, footer {
-  background-color: #111827;
-  padding: 12px 20px;
+    background-color: #111827;
+    padding: 12px 20px;
 }
 
 main {
-  display: flex;
-  height: calc(100vh - 80px); /* header+footer height */
+    display: flex;
+    height: calc(100vh - 80px); /* header+footer height */
+}
+main {
+    padding-top: 80px; /* match your topbar height */
 }
 
 .network-container {
-  flex: 1;
-  margin: 10px;
-  background-color: #1f2937;
-  border-radius: 12px;
+    flex: 1;
+    margin: 10px;
+    background-color: #1f2937;
+    border-radius: 12px;
 }
 
 .metrics-panel {
-  width: 250px;
-  margin: 10px;
-  background-color: #1f2937;
-  border-radius: 12px;
-  padding: 10px;
+    width: 250px;
+    margin: 10px;
+    background-color: #1f2937;
+    border-radius: 12px;
+    padding: 10px;
 }
 
 .node-form {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    padding: 8px;
 
-  display: flex;
-  gap: 8px;
-  padding: 8px;
+    background: #111;
+    z-index: 1000;
 
-  background: #111;
-  z-index: 1000;
+    box-sizing: border-box; /* <- include padding in width */
 }
 
 .node-form input,
+.node-form select,
 .node-form button {
-  padding: 4px 6px;
+    max-width: 100%; /* prevent overflowing */
+    box-sizing: border-box;
 }
