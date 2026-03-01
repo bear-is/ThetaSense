@@ -29,3 +29,22 @@ main {
   border-radius: 12px;
   padding: 10px;
 }
+
+.node-form {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+
+  background: #111;
+  z-index: 1000;
+}
+
+.node-form input,
+.node-form button {
+  padding: 4px 6px;
+}
