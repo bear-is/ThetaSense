@@ -33,11 +33,12 @@ export default function App() {
 
   // 3. ADD NODE & SYNC: Save to Java and Update UI
   const addNode = async () => {
-    const newId = `N${graphData.nodes.length + 1}`;
+    const newId = (graphData.nodes.length + 1);
 
     // Create the node object for both React and Java
     const newNode = {
       id: newId,
+      // needs to be fixed to read from post request instead of hardcode
       info: "Substation Alpha",
       generation: 0.0,
       demand: 0.0,
@@ -54,6 +55,8 @@ export default function App() {
 
       if (response.ok) {
         // Only update UI if Java successfully saved it
+
+        // edit this code such that we can add nodes at will and assign links as appropriate.
         let newLink = null;
         if (graphData.nodes.length > 0) {
           const prevNode = graphData.nodes[graphData.nodes.length - 1];
@@ -86,6 +89,7 @@ export default function App() {
       <main style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <div style={{ flex: 1, padding: "20px", position: "relative" }}>
           <div style={toolbarStyle}>
+            {/*need to add fields for data for the new node*/}
             <button onClick={addNode} style={btnStyle}>+ Add Node</button>
           </div>
           {/* THE HOOK: Passing data and updates into D3 Network */}
