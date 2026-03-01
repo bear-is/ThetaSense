@@ -114,6 +114,7 @@ public class GridServer {
         // 3. SIMULATION DATA ROUTE: Fetch real-time metrics/colors
         server.createContext("/api/simulation/results", (exchange) -> {
             try {
+
                 addCorsHeaders(exchange);
                 if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
                     exchange.sendResponseHeaders(204, -1);
