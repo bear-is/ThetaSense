@@ -36,6 +36,10 @@ export default function App() {
         e.preventDefault();
         if (!lineForm.from || !lineForm.to || !lineForm.distance || !lineForm.capacity) return;
 
+        if (lineForm.from == lineForm.to) {
+            alert("You cannot add a line from a node to itself.")
+            return;
+        }
         const payload = {
             from: Number(lineForm.from),
             to: Number(lineForm.to),
@@ -153,46 +157,52 @@ export default function App() {
                 <h1 style={{margin: 0, fontSize: '1.2rem'}}>Theta sense grid optimisation engine</h1>
                 <div style={{fontSize: '12px', color: '#10b981'}}>● SYSTEM ONLINE</div>
             </header>
-            <main style={{display: "flex", flex: 1, overflow: "hidden"}}>
+            <main style={{
+                width: "100vw",
+                height: "100vh",
+                overflow: "hidden",
+                marginTop: "-40px", // prevent topbar overlap
+                marginRight: ""
+            }}>
                 <div style={{flex: 1, position: "relative"}}>
                     {/* Pass static graph + real-time status updates */}
                     <Network graphData={graphData} updates={updates}/>
                 </div>
                 <div style={formTopbarStyle}>
                     {/* Node form */}
-                    <form onSubmit={handleAddNode} style={formStyle}>
-                        <input name="name" type="String" placeholder="Name" value={nodeForm.name}
+                    <form onSubmit={handleAddNode} style={{formStyle}}>
+                        <input name="name" type="String" placeholder="Name" value={nodeForm.name} style={inputStyle}
                                onChange={handleNodeChange}/>
-                        <input name="demand" type="number" placeholder="Demand" value={nodeForm.demand}
+                        <input name="demand" type="number" placeholder="Demand" value={nodeForm.demand} style={inputStyle}
                                onChange={handleNodeChange}/>
-                        <input name="generation" type="number" placeholder="Generation" value={nodeForm.generation}
+                        <input name="generation" type="number" placeholder="Generation" value={nodeForm.generation} style={inputStyle}
                                onChange={handleNodeChange}/>
                         <label>
                             Slack
-                            <input name="slack" type="checkbox" checked={nodeForm.slack} onChange={handleNodeChange}/>
+                            <input name="slack" type="checkbox" checked={nodeForm.slack} style={inputStyle} onChange={handleNodeChange}/>
                         </label>
                         <button type="submit">Add Node</button>
                     </form>
 
                     {/* Line form */}
-                    <form onSubmit={handleAddLine} style={formStyle}>
-                        <select name="from" value={lineForm.from} onChange={handleLineChange} required>
+                    <form onSubmit={handleAddLine} style={{formStyle}}>
+                        <select name="from" value={lineForm.from} onChange={handleLineChange} style={selectStyle} required>
                             <option value="">From Node</option>
                             {graphData.nodes.map(n => (
                                 <option key={n.id} value={n.id}>{n.name}</option>
                             ))}
                         </select>
 
-                        <select name="to" value={lineForm.to} onChange={handleLineChange} required>
+                        <select name="to" value={lineForm.to} onChange={handleLineChange} style={selectStyle} required>
                             <option value="">To Node</option>
                             {graphData.nodes.map(n => (
                                 <option key={n.id || n.name} value={n.id || n.name}>{n.name}</option>
                             ))}
                         </select>
 
-                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.distance}
+                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.distance} style={inputStyle}
                                onChange={handleLineChange} required/>
-                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.capacity}
+                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.capacity} style={inputStyle}
                                onChange={handleLineChange} required/>
                         <button type="submit">Add Line</button>
                     </form>
@@ -243,6 +253,7 @@ const formTopbarStyle = {
     left: 0,
     right: 0,
     height: "80px",            // adjust as needed
+    width: "100vw",
     background: "#0f172a",
     display: "flex",
     alignItems: "center",
@@ -255,8 +266,20 @@ const formTopbarStyle = {
 const formStyle = {
     display: "flex",
     alignItems: "center",
+    width: "80%",
     gap: "10px",
 };
+const inputStyle = {
+    width: "100px",   // desired width
+    padding: "4px 6px",
+    borderRadius: "4px",
+    border: "1px solid #334155",
+    background: "#292929",
+    color: "#fff",
+};
+const selectStyle = {
+    color: "#fff",
+}
 const sidebarStyle = {
     width: "280px",
     padding: "20px",

@@ -13,15 +13,27 @@ export default function Network({graphData, updates}) {
             target: graphData.nodes.find(n => n.id === l.to)
         }));
 
-        console.log("Graphdata ", graphData);
-        const width = 800, height = 600;
+        const container = svgRef.current.parentElement;
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
         const svg = d3.select(svgRef.current);
         const tooltip = d3.select(tooltipRef.current);
 
+        svg.attr("width", width).attr("height", height);
         svg.selectAll("*").remove();
+        const zoom = d3.zoom()
+            .scaleExtent([0.005, 300]) // min/max zoom
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
 
+        // Group everything for zoom/pan
+        const g = svg.append("g");
+
+        svg.call(zoom);
         // 1. DEFINE ARROWHEADS
-        svg.append('defs').append('marker')
+        g.append('defs').append('marker')
             .attr('id', 'arrowhead')
             .attr('viewBox', '-0 -5 10 10')
             .attr('refX', 23) // Moves arrow to edge of node circle
@@ -42,9 +54,8 @@ export default function Network({graphData, updates}) {
             .force("charge", d3.forceManyBody().strength(-20))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", ticked);
-
         // 3. DRAW LINKS (Standard Lines)
-        const link = svg.append("g")
+        const link = g.append("g")
             .selectAll("line")
             .data(links)  // <-- use mapped links
             .enter()
@@ -53,7 +64,7 @@ export default function Network({graphData, updates}) {
             .attr("stroke-width", 3)
             .attr("marker-end", "url(#arrowhead)");
         // 4. DRAW NODES
-        const node = svg.append("g")
+        const node = g.append("g")
             .selectAll("g")
             .data(graphData.nodes)
             .enter()
@@ -64,7 +75,7 @@ export default function Network({graphData, updates}) {
                 .on("end", dragended));
 
         node.append("circle")
-            .attr("r",  d => {
+            .attr("r", d => {
                 const maxVal = Math.max(Math.abs(d.demand || 0), Math.abs(d.generation || 0));
                 const minRadius = 40; // minimum radius for visibility
                 const scaleFactor = 2; // adjust for your visual scaling
@@ -96,7 +107,7 @@ export default function Network({graphData, updates}) {
             .on("mousemove", (event) => {
                 const rect = svgRef.current.getBoundingClientRect();
                 tooltip.style("left", (event.clientX - rect.left + 10) + "px")
-                    .style("top",  (event.clientY - rect.top + 10) + "px");
+                    .style("top", (event.clientY - rect.top + 10) + "px");
             })
             .on("mouseout", () => {
                 tooltip.style("display", "none");
@@ -111,7 +122,8 @@ export default function Network({graphData, updates}) {
                 tempText.text(str + "…");
             }
             tempText.remove();
-            return str.length < text.length ? str + "…" : str;        }
+            return str.length < text.length ? str + "…" : str;
+        }
 
         // 5. THE TICK FUNCTION (Physics Update)
         function ticked() {
@@ -175,7 +187,9 @@ export default function Network({graphData, updates}) {
                 zIndex: 1000
             }}>
             </div>
-            <svg ref={svgRef} width="100%" height="100%" viewBox="0 0 800 600"></svg>
+            <div style={{flex: 1, position: "relative"}}>
+                <svg ref={svgRef} width="100%" height="100%" viewBox="0 0 800 600"></svg>
+            </div>
 
 
         </div>
