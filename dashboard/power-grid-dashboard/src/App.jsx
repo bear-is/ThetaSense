@@ -80,8 +80,7 @@ export default function App() {
         }
     };
 
-  return () => clearInterval(interval);
-}, [get]);
+
 
     // --- DEBUG: log form changes ---
     useEffect(() => {
