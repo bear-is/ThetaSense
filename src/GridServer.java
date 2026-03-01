@@ -122,8 +122,8 @@ public class GridServer {
 
                 // Get the latest computed state from your engine
                 Map<String, Object> updates = new HashMap<>();
-                updates.put("totalGridLoad", engine.getTotalGridLoad()); // e.g., { "A": "orange" }
-                updates.put("efficiencyQuotient", engine.getEfficiency());   // e.g., { "A-B": 0.85 }
+                updates.put("totalGridLoad", engine.getTotalGridLoad());
+                updates.put("efficiencyQuotient", engine.getEfficiency());
                 updates.put("systemStability", engine.computeStabilityIndex());
 
                 byte[] response = mapper.writeValueAsBytes(updates);
