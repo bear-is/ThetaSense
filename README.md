@@ -16,6 +16,7 @@ The frontend is built with **Node.js**, **React**, and **D3.js**, allowing you t
 - Random tick updates simulate **changes in power demand**  
 
 The main idea: create a power distribution network and see how efficiency changes with **node placement** and **transmission line additions**.
+Power grid designers could then use this program to simulate, predict, and understand potential changes to existing electrical infastructure.
 
 ---
 
