@@ -161,8 +161,12 @@ export default function App() {
                 <div style={formTopbarStyle}>
                     {/* Node form */}
                     <form onSubmit={handleAddNode} style={formStyle}>
-                        <input name="demand" type="number" placeholder="Demand" value={nodeForm.demand} onChange={handleNodeChange}/>
-                        <input name="generation" type="number" placeholder="Generation" value={nodeForm.generation} onChange={handleNodeChange}/>
+                        <input name="name" type="String" placeholder="Name" value={nodeForm.name}
+                               onChange={handleNodeChange}/>
+                        <input name="demand" type="number" placeholder="Demand" value={nodeForm.demand}
+                               onChange={handleNodeChange}/>
+                        <input name="generation" type="number" placeholder="Generation" value={nodeForm.generation}
+                               onChange={handleNodeChange}/>
                         <label>
                             Slack
                             <input name="slack" type="checkbox" checked={nodeForm.slack} onChange={handleNodeChange}/>
@@ -175,19 +179,21 @@ export default function App() {
                         <select name="from" value={lineForm.from} onChange={handleLineChange} required>
                             <option value="">From Node</option>
                             {graphData.nodes.map(n => (
-                                <option key={n.id} value={n.id}>{n.id}</option>
+                                <option key={n.id} value={n.id}>{n.name}</option>
                             ))}
                         </select>
 
                         <select name="to" value={lineForm.to} onChange={handleLineChange} required>
                             <option value="">To Node</option>
                             {graphData.nodes.map(n => (
-                                <option key={n.id || n.name} value={n.id || n.name}>{n.id || n.name}</option>
+                                <option key={n.id || n.name} value={n.id || n.name}>{n.name}</option>
                             ))}
                         </select>
 
-                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.distance} onChange={handleLineChange} required/>
-                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.capacity} onChange={handleLineChange} required/>
+                        <input name="distance" type="number" placeholder="Distance(km)" value={lineForm.distance}
+                               onChange={handleLineChange} required/>
+                        <input name="capacity" type="number" placeholder="Capacity(mW)" value={lineForm.capacity}
+                               onChange={handleLineChange} required/>
                         <button type="submit">Add Line</button>
                     </form>
                 </div>
@@ -262,7 +268,8 @@ const sidebarStyle = {
     height: "100%",       // <-- fill parent's height
     overflowY: "auto",    // <-- allow scrolling if needed
     gap: "15px"           // <-- spacing between forms/metrics
-};const footerStyle = {
+};
+const footerStyle = {
     padding: '8px 20px',
     fontSize: '11px',
     color: '#64748b',

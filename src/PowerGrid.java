@@ -118,8 +118,12 @@ public class PowerGrid {
 
     public void updateNode(PowerNode updatedNode) {
         for (int i = 0; i < nodes.size(); i++) {
-            if (nodes.get(i).getId() == (updatedNode.getId())) {
-                nodes.set(i, updatedNode);
+            if (nodes.get(i).getId() == updatedNode.getId()) {
+                nodes.get(i).setGeneration(updatedNode.getGeneration());
+                nodes.get(i).setDemand(updatedNode.getDemand());
+                nodes.get(i).setSlack(updatedNode.isSlack());
+                nodes.get(i).setName(updatedNode.getName()); // <-- add this
+                nodes.get(i).updateNetInjection();
                 return;
             }
         }

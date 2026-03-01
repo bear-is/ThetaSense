@@ -38,7 +38,7 @@ export default function Network({graphData, updates}) {
         // 2. SIMULATION SETUP
         const simulation = d3.forceSimulation(graphData.nodes)
             .force("link", d3.forceLink(links)
-                .id(d => d.id).distance(150))
+                .id(d => d.id).distance(500))
             .force("charge", d3.forceManyBody().strength(-20))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", ticked);
@@ -64,7 +64,12 @@ export default function Network({graphData, updates}) {
                 .on("end", dragended));
 
         node.append("circle")
-            .attr("r", 20)
+            .attr("r",  d => {
+                const maxVal = Math.max(Math.abs(d.demand || 0), Math.abs(d.generation || 0));
+                const minRadius = 40; // minimum radius for visibility
+                const scaleFactor = 2; // adjust for your visual scaling
+                return minRadius + maxVal * scaleFactor;
+            })
             .attr("fill", "#000")
             .attr("stroke", "#3b82f6") // Blue ring
             .attr("stroke-width", 2);
@@ -73,8 +78,40 @@ export default function Network({graphData, updates}) {
             .attr("text-anchor", "middle")
             .attr("dy", 5)
             .attr("fill", "#fff")
-            .style("font-size", "10px")
-            .text(d => d.id);
+            .style("font-size", d => {
+                const maxVal = Math.max(Math.abs(d.demand || 0), Math.abs(d.generation || 0));
+                const scaleFactor = 2;
+                return `${d.radius * 0.25}px`;  // font is ~half the radius
+            })
+            .text(d => truncateText(d.name, 40)); // 40 is node radi        // --- TOOLTIP EVENTS ---
+        node.on("mouseover", (event, d) => {
+            tooltip.style("display", "block")
+                .html(`
+            <strong>${d.name || d.id}</strong><br/>
+            Demand: ${d.demand || 0} MW<br/>
+            Generation: ${d.generation || 0} MW<br/>
+            Slack: ${d.slack ? "Yes" : "No"}
+        `);
+        })
+            .on("mousemove", (event) => {
+                const rect = svgRef.current.getBoundingClientRect();
+                tooltip.style("left", (event.clientX - rect.left + 10) + "px")
+                    .style("top",  (event.clientY - rect.top + 10) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.style("display", "none");
+            });
+
+        function truncateText(text, radius) {
+            if (!text) return "";
+            const tempText = svg.append("text").attr("visibility", "hidden").text(text);
+            let str = text;
+            while (tempText.node().getComputedTextLength() > radius * 2 && str.length > 0) {
+                str = str.slice(0, -1);
+                tempText.text(str + "…");
+            }
+            tempText.remove();
+            return str.length < text.length ? str + "…" : str;        }
 
         // 5. THE TICK FUNCTION (Physics Update)
         function ticked() {
@@ -125,7 +162,22 @@ export default function Network({graphData, updates}) {
 
     return (
         <div style={{width: "100%", height: "100%", background: "#0b1220"}}>
+            <div ref={tooltipRef} style={{
+                position: "absolute",
+                pointerEvents: "none",
+                background: "#1e293b",
+                color: "#fff",
+                padding: "6px 10px",
+                borderRadius: "6px",
+                fontSize: "12px",
+                border: "1px solid #334155",
+                display: "none",   // hidden by default
+                zIndex: 1000
+            }}>
+            </div>
             <svg ref={svgRef} width="100%" height="100%" viewBox="0 0 800 600"></svg>
+
+
         </div>
     );
 }
