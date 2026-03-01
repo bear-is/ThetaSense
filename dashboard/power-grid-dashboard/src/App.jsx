@@ -79,14 +79,6 @@ export default function App() {
             console.error("❌ Failed to load grid:", err);
         }
     };
-// In your React useEffect
-useEffect(() => {
-  const interval = setInterval(async () => {
-    const data = await get("http://localhost:8080/api/simulation/results");
-    if (data) {
-      setUpdates(data); // This updates the node colors automatically!
-    }
-  }, 2000); // Match your Java scheduler (2 seconds)
 
   return () => clearInterval(interval);
 }, [get]);
