@@ -1,9 +1,11 @@
-import java.util.concurrent.TransferQueue;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TransmissionLine {
 
     private int from;
     private int to;
+    private int distance;
     private static final double reactivity = 0.3;//this is our impedence per kilometer metric
 
     private  double reactance;//this will be our impedence
@@ -33,6 +35,23 @@ public class TransmissionLine {
     {
         return reactance;   
     }
+    public void setTo(int to)
+    {
+        this.to = to;
+    }
+    public void setFrom(int from)
+    {
+        this.from = from;
+    }
+    public void setCapacity(int capacity)
+    {
+        this.capacity = capacity;
+    }
+    public void setDistance(int distance)
+    {
+        this.distance = distance;
+        this.reactance = distance * reactivity;
+    }
 
     // Getters
     public int getFrom() { return from; }
@@ -40,5 +59,8 @@ public class TransmissionLine {
     public double getFlow() { return flow; }
     public double getCapacity() {
         return capacity;
+    }
+    public int getDistance(){
+        return distance;
     }
 }

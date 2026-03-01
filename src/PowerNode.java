@@ -1,18 +1,20 @@
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PowerNode {
 
 
     private int id;
+
     private double demand;       // positive means load
     private double generation;   // positive means produced power
     private double netInjection; // generation - demand
+
     private double voltageAngle; // theta
+
     private boolean slack;       // reference node
     private String name;
-    private static int nextId =  0;
-    public PowerNode(){
-        this.id = nextId+1;
-        nextId++;
-    }
+    private static int nextId =  1;
     public PowerNode(int id) {
         this.id = id;
     }
