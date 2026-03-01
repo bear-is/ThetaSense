@@ -149,7 +149,7 @@ export default function App() {
     return (
         <div style={containerStyle}>
             <header style={headerStyle}>
-                <h1 style={{margin: 0, fontSize: '1.2rem'}}>⚡ SmartGrid Optimization Engine</h1>
+                <h1 style={{margin: 0, fontSize: '1.2rem'}}>Theta sense grid optimisation engine</h1>
                 <div style={{fontSize: '12px', color: '#10b981'}}>● SYSTEM ONLINE</div>
             </header>
             <main style={{display: "flex", flex: 1, overflow: "hidden"}}>
