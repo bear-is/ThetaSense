@@ -46,7 +46,7 @@ public class GridServer {
                 exchange.close();
 
             } catch (Exception e) {
-                e.printStackTrace();   // <-- THIS WILL SHOW REAL ERROR
+                e.printStackTrace();   // prints errors
 
                 try {
                     exchange.sendResponseHeaders(500, -1);
@@ -111,6 +111,34 @@ public class GridServer {
             }
             exchange.close();
         });
+        // 3. SIMULATION DATA ROUTE: Fetch real-time metrics/colors
+        server.createContext("/api/simulation/results", (exchange) -> {
+            try {
+                addCorsHeaders(exchange);
+                if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    exchange.sendResponseHeaders(204, -1);
+                    return;
+                }
+
+                // Get the latest computed state from your engine
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("totalGridLoad", engine.getTotalGridLoad()); // e.g., { "A": "orange" }
+                updates.put("efficiencyQuotient", engine.getEfficiency());   // e.g., { "A-B": 0.85 }
+                updates.put("systemStability", engine.computeStabilityIndex());
+
+                byte[] response = mapper.writeValueAsBytes(updates);
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, response.length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            } finally {
+                exchange.close();
+            }
+        });
         server.createContext("/api/node/update", (exchange) -> {
             addCorsHeaders(exchange);
             if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -137,6 +165,7 @@ public class GridServer {
         server.start();
         System.out.println("Server successfully started on port 8080");
     }
+
 
     private static void addCorsHeaders(HttpExchange exchange) {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
