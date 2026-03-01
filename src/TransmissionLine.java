@@ -41,4 +41,7 @@ public class TransmissionLine {
     public int getFrom() { return from; }
     public int getTo() { return to; }
     public double getFlow() { return flow; }
+    public double getCapacity() {
+        return capacity;
+    }
 }

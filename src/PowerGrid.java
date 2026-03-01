@@ -16,6 +16,10 @@ public class PowerGrid {
     public void addEdge(TransmissionLine edge) {
         edges.add(edge);
     }
+    public List<TransmissionLine> getEdge()
+    {
+        return edges;
+    }
 
     public void solveDCFlow() {
 

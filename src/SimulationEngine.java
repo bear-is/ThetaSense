@@ -16,6 +16,21 @@ public class SimulationEngine {
             node.updateNetInjection();
         }
     }
+    public double computeStabilityIndex() {
+
+        double maxLoading = 0.0;
+
+        for (TransmissionLine e : grid.getEdge()) {
+
+            double loading = Math.abs(e.getFlow()) / e.getCapacity();
+
+            if (loading > maxLoading) {
+                maxLoading = loading;
+            }
+        }
+
+        return 1.0 - maxLoading;
+    }
 
     public void step() {
         randomizeDemand();
